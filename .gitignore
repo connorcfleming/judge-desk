@@ -1,0 +1,14 @@
+logs/
+pending/
+state.json
+state.lock
+.env
+*.bak*
+__pycache__/
+*.pyc
+birdeye_spend.json
+jev_spend.json
+wallet_db.json
+wallets.json
+wallet_candidates.json
+*.pid

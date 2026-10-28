@@ -1,0 +1,58 @@
+{
+ "bank_start": 100,
+ "trade_pct": 0.1,
+ "trade_max_usd": 10,
+ "exits": {
+  "take_half_at_pct": 50,
+  "ladder_rest": [
+   {
+    "at_pct": 200,
+    "sell_frac_of_orig": 0.1
+   },
+   {
+    "at_pct": 500,
+    "sell_frac_of_orig": 0.1
+   },
+   {
+    "at_pct": 1000,
+    "sell_frac_of_orig": 0.1
+   },
+   {
+    "at_pct": 2000,
+    "sell_frac_of_orig": 0.1
+   }
+  ],
+  "trail_from_peak_pct": 20,
+  "trail_arm_pct": 50,
+  "hard_stop_pct": -30,
+  "trail_tiers": [
+   {
+    "peak_gain_pct": 200,
+    "trail_pct": 30
+   },
+   {
+    "peak_gain_pct": 900,
+    "trail_pct": 40
+   }
+  ],
+  "moonbag_note": "last ~10% of original rides with trailing stop only"
+ },
+ "search": {
+  "max_age_h": 24,
+  "min_liq_usd": 5000,
+  "min_vol_h1": 5000,
+  "min_txns_h1": 50,
+  "max_leads": 25
+ },
+ "gate": {
+  "buy_p": 0.7,
+  "organic_p": 0.65,
+  "max_exit_risk": 3,
+  "watch_recheck_min": 30
+ },
+ "mode": "LIVE enabled (paper positions stay paper)",
+ "live_enabled": true,
+ "live_max_total_buys_usd": null,
+ "live_trade_pct": 0.1,
+ "live_trade_max_usd": null
+}
