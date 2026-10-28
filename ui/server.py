@@ -4,7 +4,8 @@ Binds 127.0.0.1 only. Serves ui/index.html and /api/snapshot (JSON built by desk
 import argparse,json,os,sys
 from http.server import ThreadingHTTPServer,BaseHTTPRequestHandler
 H=os.path.dirname(os.path.abspath(__file__));sys.path.insert(0,os.path.dirname(H))
-import deskdata
+import deskdata,deskterm
+from urllib.parse import urlparse,parse_qs
 ap=argparse.ArgumentParser();ap.add_argument("--dir",default=".");ap.add_argument("--port",type=int,default=8787);ap.add_argument("--no-price",action="store_true")
 a=ap.parse_args();D=os.path.abspath(a.dir)
 class Hd(BaseHTTPRequestHandler):
@@ -15,7 +16,15 @@ class Hd(BaseHTTPRequestHandler):
         p=self.path.split("?")[0]
         if p in("/","/index.html"):self._send(200,open(os.path.join(H,"index.html"),"rb").read(),"text/html; charset=utf-8")
         elif p=="/api/snapshot":
-            try:self._send(200,json.dumps(deskdata.snapshot(D,live_price=not a.no_price),default=str).encode(),"application/json")
+            try:self._send(200,json.dumps(dict(deskdata.snapshot(D,live_price=not a.no_price),desk=deskterm.build(D,live_price=not a.no_price)),default=str).encode(),"application/json")
+            except Exception as e:self._send(500,json.dumps({"error":type(e).__name__}).encode(),"application/json")
+        elif p=="/classic":self._send(200,open(os.path.join(H,"classic.html"),"rb").read(),"text/html; charset=utf-8")
+        elif p=="/api/terminal":
+            try:self._send(200,json.dumps(deskterm.build(D,live_price=not a.no_price),default=str).encode(),"application/json")
+            except Exception as e:self._send(500,json.dumps({"error":type(e).__name__,"msg":str(e)[:200]}).encode(),"application/json")
+        elif p=="/api/coin":
+            lid=(parse_qs(urlparse(self.path).query).get("lead_id") or [""])[0]
+            try:self._send(200,json.dumps(deskterm.coin(D,lid),default=str).encode(),"application/json")
             except Exception as e:self._send(500,json.dumps({"error":type(e).__name__}).encode(),"application/json")
         else:self._send(404,b"not found","text/plain")
     def log_message(self,*x):pass

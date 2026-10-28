@@ -1,51 +1,100 @@
-<!doctype html><html><head><meta charset="utf-8"><title>Judge Desk</title><meta name="viewport" content="width=device-width,initial-scale=1">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Judge Desk</title>
 <style>
-:root{--bg:#0d1117;--card:#161b22;--line:#30363d;--fg:#e6edf3;--dim:#8b949e;--g:#3fb950;--r:#f85149;--y:#d29922;--c:#58a6ff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}
-header{display:flex;gap:24px;align-items:baseline;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-h1{font-size:16px;margin:0}.k{color:var(--dim)}.v{font-weight:600}
-main{display:grid;grid-template-columns:repeat(auto-fit,minmax(520px,1fr));gap:14px;padding:14px 20px}
-section{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow:auto;max-height:460px}
-section.wide{grid-column:1/-1}h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--c);margin:0 0 8px}
-table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:3px 8px;border-bottom:1px solid #21262d;white-space:nowrap}th{color:var(--dim);font-weight:500;position:sticky;top:0;background:var(--card)}
-.g{color:var(--g)}.r{color:var(--r)}.y{color:var(--y)}.d{color:var(--dim)}
-.funnel{display:flex;gap:10px;flex-wrap:wrap}.f{background:#0d1117;border:1px solid var(--line);border-radius:6px;padding:6px 12px;min-width:92px}.f b{display:block;font-size:20px}
-tr.new td{animation:fl 2s}@keyframes fl{from{background:#1f6feb44}to{background:transparent}}
+:root{--bg:#000;--fg:#fff;--mut:#8a8a8a;--line:#1c1c1c;--card:#0a0a0a;--g:#00ff88;--r:#ff3b4a;--y:#ffd24a;--b:#5ab4ff;--p:#c08cff;--o:#ff9f43;
+--sans:Inter,ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.4 var(--sans);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}.mut{color:var(--mut)}.g{color:var(--g)}.r{color:var(--r)}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 10px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#000;z-index:5}
+h1{margin:0;font-size:20px;font-weight:700;letter-spacing:-.02em}.sub{color:var(--mut);font-size:12px}
+.agents{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut)}.dot{width:9px;height:9px;border-radius:50%;background:var(--g);box-shadow:0 0 0 0 rgba(0,255,136,.7);animation:pulse 1.8s infinite}
+.dot.down{background:var(--r);animation:pulseR 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(0,255,136,0)}100%{box-shadow:0 0 0 0 rgba(0,255,136,0)}}@keyframes pulseR{0%{box-shadow:0 0 0 0 rgba(255,59,74,.7)}70%{box-shadow:0 0 0 8px rgba(255,59,74,0)}}
+.marq{overflow:hidden;border-bottom:1px solid var(--line);white-space:nowrap;font:12px var(--mono)}.marq .in{display:inline-block;padding:7px 0;animation:mq 60s linear infinite}
+.marq span{margin-right:26px;cursor:pointer}@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+main{display:grid;gap:12px;padding:12px;grid-template-columns:1fr}
+@media(min-width:1000px){main{grid-template-columns:360px 1fr 320px}.term{grid-row:span 2}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}.card h2{margin:0 0 10px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);font-weight:600}
+.big{font-size:32px;font-weight:700;letter-spacing:-.03em}.row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.tag{font:10px var(--mono);border:1px solid #333;border-radius:4px;padding:1px 5px;color:var(--mut)}
+.ag{display:grid;grid-template-columns:28px 1fr;gap:8px;padding:9px 6px;border-top:1px solid var(--line);border-radius:6px;transition:background .8s}.ag:first-of-type{border-top:0}
+.ag .ic{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:15px}.ag .nm{font-weight:600;font-size:12px;letter-spacing:.05em}
+.ag .msg{font:12px var(--mono);word-break:break-word}.ag .st{font-size:11px;color:var(--mut)}.flash{background:rgba(0,255,136,.12)!important;transition:none}
+.term{font:12px/1.55 var(--mono);display:flex;flex-direction:column;min-height:420px}
+#log{overflow-y:auto;max-height:70vh;flex:1;scroll-snap-type:y proximity}#log div{scroll-snap-align:end;white-space:pre-wrap;word-break:break-word}#log div:hover{background:#111;cursor:pointer}
+.kill{position:relative;padding:5px 6px;font:12px var(--mono);margin-bottom:3px}.kill .bar{position:absolute;inset:0 auto 0 0;background:rgba(255,59,74,.14);border-radius:3px}.kill span{position:relative}
+svg{width:100%;height:56px;display:block}
+.toast{position:fixed;right:14px;bottom:14px;display:flex;flex-direction:column;gap:8px;z-index:20}.toast div{background:#0d0d0d;border:1px solid var(--g);padding:10px 14px;border-radius:10px;font:13px var(--mono);animation:tin .3s}
+.toast div.sell{border-color:var(--o)}@keyframes tin{from{opacity:0;transform:translateY(10px)}}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;z-index:30;overflow:auto}#modal .box{max-width:720px;margin:5vh auto;background:#050505;border:1px solid #222;border-radius:14px;padding:18px}
+#modal pre{font:12px var(--mono);white-space:pre-wrap;color:#ddd;margin:4px 0}.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font:12px var(--mono)}.kv b{color:var(--mut);font-weight:400}
+.pos{font:12px var(--mono);padding:4px 0;border-top:1px solid var(--line)}a{color:var(--b)}
 </style></head><body>
-<header><h1>Judge Desk</h1><span><span class="k">bank</span> <span class="v" id="bank">-</span></span><span><span class="k">watch</span> <span class="v" id="watch">-</span></span>
-<span><span class="k">Jev today</span> <span class="v" id="jev">-</span></span><span class="d" id="now"></span><span class="d">read-only · refresh 4s</span></header>
+<header><div><h1>Judge Desk</h1><div class="sub">solana memes • strict gate • live</div></div>
+<div class="agents"><span class="dot" id="dot"></span><span id="agn">7 agents</span></div></header>
+<div class="marq"><div class="in" id="tick"><span class="mut">loading leads…</span></div></div>
 <main>
-<section class="wide"><h2>Pipeline funnel · today</h2><div class="funnel" id="funnel"></div></section>
-<section class="wide"><h2>Live lead feed</h2><table id="feed"></table></section>
-<section><h2>Jev judge / gate</h2><table id="judge"></table></section>
-<section><h2>Whale checks</h2><table id="whales"></table></section>
-<section><h2>Open positions</h2><table id="pos"></table></section>
-<section><h2>Recent trades</h2><table id="trades"></table></section>
-<section><h2>Background loops</h2><table id="loops"></table><pre class="d" id="ew" style="white-space:pre-wrap"></pre></section>
-<section><h2>Live executions</h2><table id="live"></table></section>
+<section class="card" id="eqc"><h2>Equity</h2>
+ <div class="row"><span class="tag">LIVE WALLET</span><span class="mut" id="lw-addr"></span></div>
+ <div class="big" id="lw">—</div><div class="mut" id="lw-sub" style="font-size:12px"></div>
+ <div style="height:12px"></div>
+ <div class="row"><span class="tag">PAPER BANK</span><span id="pp-rec" class="mut"></span></div>
+ <div class="row"><span class="big" id="pp" style="font-size:26px">—</span><span id="pp-pl"></span></div>
+ <svg id="spark" viewBox="0 0 300 56" preserveAspectRatio="none"></svg>
+ <div id="pos"></div>
+</section>
+<section class="card term"><h2>Terminal <span class="mut" id="upd" style="float:right;letter-spacing:0;text-transform:none"></span></h2><div id="log"></div></section>
+<section class="card"><h2>Desk • 7 agents</h2><div id="ags"></div></section>
+<section class="card"><h2>Killed by rule <span class="mut">(today)</span></h2><div id="kills"></div></section>
 </main>
+<div class="toast" id="toast"></div>
+<div id="modal" onclick="if(event.target===this)this.style.display='none'"><div class="box" id="mbox"></div></div>
 <script>
-const seen=new Set();let first=true;
-const e=s=>String(s??'-').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const n=(v,d=0)=>v==null?'-':Number(v).toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:d});
-const p=(v,d=1)=>v==null?'-':`<span class="${v>=0?'g':'r'}">${v>=0?'+':''}${n(v,d)}</span>`;
-const c=v=>{const m={clean:'g',confirm:'g',buy:'g',dead:'r',pass:'r',watch:'y',quiet:'y'};return `<span class="${m[v]||''}">${e(v)}</span>`};
-const t=ts=>e(String(ts||'').slice(11,19));
-function tbl(id,h,rows,cls){document.getElementById(id).innerHTML='<tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr>'+(rows.length?rows.map((r,i)=>`<tr class="${cls?cls[i]:''}">${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join(''):`<tr><td class="d" colspan="${h.length}">none</td></tr>`)}
-async function tick(){try{const s=await (await fetch('/api/snapshot',{cache:'no-store'})).json();
-document.getElementById('bank').textContent='$'+n(s.bank,2);document.getElementById('watch').textContent=s.watch_n;
-document.getElementById('jev').innerHTML=`$${n(s.jev_spend.usd,4)} / $${n(s.jev_spend.cap_usd,2)} <span class="d">(${s.jev_spend.calls||0} calls)</span>`;
-document.getElementById('now').textContent=s.now;
-document.getElementById('funnel').innerHTML=Object.entries(s.funnel).map(([k,v])=>`<div class="f"><span class="d">${e(k)}</span><b>${n(v)}</b></div>`).join('');
-const cls=s.feed.map(x=>(!first&&!seen.has(x.lead_id))?'new':'');s.feed.forEach(x=>seen.add(x.lead_id));first=false;
-tbl('feed',['time','sym','mint','age','mcap','liq','vol h1','Q','source','RISK','kill reason','WHALE','GATE','killed_by'],s.feed.map(x=>[t(x.ts),e(x.symbol),`<span class="d">${e(x.mint)}</span>`,x.age_h==null?'-':n(x.age_h,1)+'h',n(x.mcap),n(x.liq),n(x.vol_h1),x.qualified?'<span class="g">Q</span>':'<span class="d">·</span>',e((x.sources||[]).join(', ')),c(x.risk),e((x.risk_fails||[]).join(', ')||''),c(x.whale),c(x.gate),e(x.killed_by||'')]),cls);
-tbl('judge',['time','sym','action','organic','late','exit','GATE','killed_by'],s.judge.map(x=>[t(x.ts),e(x.symbol),c(x.action)+' '+n(x.action_p,2),e(x.organic)+' '+n(x.organic_p,2),e(x.late),e(x.exit_risk),c(x.gate),e(x.killed_by||'')]));
-tbl('whales',['time','sym','result','hits','checked','rpc'],s.whales.map(x=>[t(x.ts),e(x.symbol),c(x.result),e(x.hits),e(x.checked),e(x.rpc)]));
-tbl('pos',['sym','mint','entry','now','PnL %','PnL $','peak','stage','held'],s.positions.map(x=>[e(x.symbol),e(x.mint),e(x.entry),e(x.price),p(x.pnl_pct),p(x.pnl_usd,2),p(x.peak_pct),e(x.stage),e(x.held_min)+'m']));
-tbl('trades',['time','event','sym','why','price','usd'],s.trades.map(x=>[t(x.ts),e(x.event),e(x.symbol||x.lead_id),e(x.why),e(x.price),n(x.usd,2)]));
-tbl('loops',['loop','pid','last write'],Object.entries(s.loops).map(([k,v])=>[e(k),v.pid?`<span class="g">up ${v.pid}</span>`:(k.endsWith('.json')?'<span class="d">file</span>':'<span class="r">DOWN</span>'),v.log_age_s==null?'-':(v.log_age_s>600?`<span class="r">${v.log_age_s}s</span>`:v.log_age_s+'s')]));
-document.getElementById('ew').textContent=(s.exit_watch_tail||[]).join('\n');
-tbl('live',['time','tag','event','sig','err'],s.live.map(x=>[t(x.ts),e(x.tag),e(x.event),e(x.sig),e(x.err||'')]));
-}catch(err){document.getElementById('now').textContent='fetch failed: '+err}}
-tick();setInterval(tick,4000);
+const C={SEARCH:'#5ab4ff',RISK:'#ff3b4a',WHALE:'#c08cff',JUDGE:'#ffd24a',GATE:'#00ff88',SNIPER:'#00ff88',EXIT:'#ff9f43',HEAD:'#8a8a8a'};
+const KC={KILL:'#ff3b4a',BUY:'#00ff88',SELL:'#ff9f43',MUTED:'#555',LIVE:'#00ff88'};
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const usd=v=>v==null?'—':(v<0?'-':'')+'$'+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const fp=v=>v==null?'?':v<0.01?v.toPrecision(3):v.toFixed(4);
+let seenTrades=null,lastAg={},lastLogKey='';
+function toast(t,cls){const d=document.createElement('div');d.className=cls||'';d.textContent=t;$('toast').appendChild(d);setTimeout(()=>d.remove(),7000)}
+function spark(s){if(!s||s.length<2){$('spark').innerHTML='';return}const v=s.map(x=>x.eq),mn=Math.min(...v),mx=Math.max(...v),rg=mx-mn||1;
+ const pts=v.map((y,i)=>`${(i/(v.length-1)*300).toFixed(1)},${(52-(y-mn)/rg*48).toFixed(1)}`).join(' ');const up=v[v.length-1]>=v[0];
+ $('spark').innerHTML=`<polyline fill="none" stroke="${up?'#00ff88':'#ff3b4a'}" stroke-width="1.6" points="${pts}"/>`}
+async function tick(){
+ let s;try{s=(await (await fetch('/api/snapshot',{cache:'no-store'})).json()).desk}catch(e){$('upd').textContent='offline';$('dot').className='dot down';return}
+ if(!s){$('upd').textContent='snapshot error';return}
+ $('dot').className='dot'+(s.healthy?'':' down');$('agn').textContent=s.healthy?'7 agents':'7 agents · loop down';$('upd').textContent='updated '+(s.now||'').slice(11,19)+' ET';
+ const tk=s.ticker.map(t=>`<span data-l="${esc(t.lead_id)}">$${esc(t.symbol)} <span class="mut">${t.price?fp(t.price):'—'}</span> <span class="${(t.h1??0)>=0?'g':'r'}">${t.h1==null?'':(t.h1>=0?'+':'')+t.h1.toFixed(1)+'%'}</span></span>`).join('');
+ if(tk)$('tick').innerHTML=tk+tk;
+ const w=s.equity.live.wallet,lv=s.equity.live;
+ if(w.configured){$('lw').textContent=usd(w.usd);$('lw-addr').textContent=w.address;$('lw-sub').textContent=`${w.sol==null?'?':w.sol.toFixed(4)} SOL @ ${usd(w.sol_usd)} · balance cached ≤60s · ${lv.trades} live trades`+(lv.note?' · '+lv.note:'')}
+ else{$('lw').textContent='—';$('lw-sub').textContent=`set DESK_WALLET_PUBKEY (public address) to show live balance · ${lv.trades} live trades, ${lv.test_tx} test tx`}
+ const p=s.equity.paper;$('pp').textContent=usd(p.equity);$('pp-pl').innerHTML=`<span class="${p.pnl>=0?'g':'r'}">${p.pnl>=0?'+':''}${usd(p.pnl)} (${p.pnl_pct?.toFixed(1)}%) vs ${usd(p.start)}</span>`;
+ $('pp-rec').textContent=`paper W/L ${p.wins}-${p.losses} · live W/L ${lv.wins??0}-${lv.losses??0}`;spark(p.series);
+ $('pos').innerHTML=s.positions.map(x=>`<div class="pos">OPEN $${esc(x.symbol)} <span class="${(x.pnl_pct??0)>=0?'g':'r'}">${x.pnl_pct==null?'?':x.pnl_pct.toFixed(1)+'%'}</span> <span class="mut">stage ${x.stage} · cost ${usd(x.cost)} · ${x.held_min}m</span> <span class="tag">PAPER</span></div>`).join('');
+ // agents
+ let i=0;$('ags').innerHTML=s.agents.map(a=>`<div class="ag" id="ag-${a.id}"><div class="ic" style="background:${C[a.id]}22;color:${C[a.id]}">${a.icon}</div><div>
+  <div class="row"><span class="nm" style="color:${C[a.id]}">${a.id}${a.name?' <span class="mut">('+a.name+')</span>':''}</span><span class="st">${a.t?a.t+' ET':''}</span></div>
+  <div class="msg">${esc(a.msg||'—')}</div><div class="st">${esc(a.stat)}${a.life!=null?' · lifetime '+a.life:''}</div></div></div>`).join('');
+ s.agents.forEach(a=>{const k=a.msg+'|'+a.ts;if(lastAg[a.id]&&lastAg[a.id]!==k){const el=$('ag-'+a.id);setTimeout(()=>{el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),120)},(i++)*180)}lastAg[a.id]=k});
+ // terminal
+ const L=$('log'),atBottom=L.scrollHeight-L.scrollTop-L.clientHeight<40,key=s.terminal.length+'|'+(s.terminal.at(-1)||{}).ts+(s.terminal.at(-1)||{}).msg;
+ if(key!==lastLogKey){lastLogKey=key;L.innerHTML=s.terminal.map(e=>`<div data-l="${esc(e.lead_id||'')}"><span class="mut">[${e.t} ET]</span> <span style="color:${C[e.agent]}">${e.agent}:</span> <span style="color:${KC[e.kind]||'#ddd'}">${esc(e.msg)}</span></div>`).join('');if(atBottom||!L.dataset.init){L.scrollTop=L.scrollHeight;L.dataset.init=1}}
+ const mx=Math.max(1,...s.kills.map(k=>k.n));$('kills').innerHTML=s.kills.map(k=>`<div class="kill"><div class="bar" style="width:${k.n/mx*100}%"></div><span>${esc(k.rule)}</span><span style="float:right" class="r">${k.n}</span></div>`).join('')||'<span class="mut">no kills today</span>';
+ // toasts (real events only, after first load)
+ const keys=s.trade_events.map(t=>t.key);if(seenTrades){s.trade_events.filter(t=>!seenTrades.has(t.key)).forEach(t=>toast(`${/SELL/.test(t.event)?'CLOSE':'OPEN'} ${t.event} $${t.symbol} ${t.why||''} ${t.usd!=null?usd(t.usd):''}`,/SELL/.test(t.event)?'sell':''))}seenTrades=new Set(keys);
+}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-l]');if(el&&el.dataset.l)coin(el.dataset.l)});
+async function coin(lid){const c=await (await fetch('/api/coin?lead_id='+encodeURIComponent(lid))).json();const j=c.jev?.answers||{},g=c.gate||{},r=c.risk||{},w=c.whale||{};
+ const kv=o=>'<div class="kv">'+Object.entries(o||{}).map(([k,v])=>`<b>${esc(k)}</b><span>${esc(typeof v==='object'?JSON.stringify(v):v)}</span>`).join('')+'</div>';
+ $('mbox').innerHTML=`<div class="row"><h1>$${esc(c.symbol)}</h1><a href="#" onclick="$('modal').style.display='none';return false">close</a></div><pre class="mut">${esc(c.mint)}</pre>
+ <h2 class="mut">DOSSIER</h2>${kv(c.dossier&&Object.keys(c.dossier).length?c.dossier:c.lead)}
+ <h2 class="mut">RISK — <span class="${r.result==='dead'?'r':'g'}">${esc(r.result||'n/a')}</span> ${esc((r.fails||[]).join(', '))}</h2>${kv(r.checks)}
+ <h2 class="mut">WHALE — ${esc(w.result||'n/a')} ${w.checked!=null?`(${(w.hits||[]).length}/${w.checked})`:''}</h2>
+ <h2 class="mut">JEV ${esc(c.jev?.model||'— not judged')}</h2>${kv(Object.fromEntries(Object.entries(j).map(([k,v])=>[k,`${v.option}  p${v.p}`])))}
+ <h2 class="mut">GATE — <span class="${g.decision==='buy'?'g':''}">${esc(g.decision||'n/a')}</span> ${g.killed_by?'<span class="r">killed_by '+esc(JSON.stringify(g.killed_by))+'</span>':''}</h2>
+ ${c.traded?`<h2 class="mut">TRADE</h2><div class="kv"><b>entry</b><span>${c.entry}</span>${c.exits.map(x=>`<b>exit</b><span>${x.price} ${esc(x.why)} → ${usd(x.usd)}</span>`).join('')}<b>realized PnL</b><span class="${(c.pnl_realized??0)>=0?'g':'r'}">${c.pnl_realized==null?'open':usd(c.pnl_realized)}</span></div>`:''}
+ <h2 class="mut">WHY IT ${c.traded?'TRADED':'GOT HERE'}</h2>${c.trail.map(t=>`<pre><span class="mut">${esc((t.ts||'').slice(11,19))}</span> <span style="color:${C[t.step]||'#0f8'}">${t.step}</span> ${esc(t.what)}</pre>`).join('')}`;
+ $('modal').style.display='block'}
+tick();setInterval(tick,5000);
 </script></body></html>

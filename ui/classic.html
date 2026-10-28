@@ -1,0 +1,51 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Judge Desk</title><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#0d1117;--card:#161b22;--line:#30363d;--fg:#e6edf3;--dim:#8b949e;--g:#3fb950;--r:#f85149;--y:#d29922;--c:#58a6ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}
+header{display:flex;gap:24px;align-items:baseline;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+h1{font-size:16px;margin:0}.k{color:var(--dim)}.v{font-weight:600}
+main{display:grid;grid-template-columns:repeat(auto-fit,minmax(520px,1fr));gap:14px;padding:14px 20px}
+section{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow:auto;max-height:460px}
+section.wide{grid-column:1/-1}h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--c);margin:0 0 8px}
+table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:3px 8px;border-bottom:1px solid #21262d;white-space:nowrap}th{color:var(--dim);font-weight:500;position:sticky;top:0;background:var(--card)}
+.g{color:var(--g)}.r{color:var(--r)}.y{color:var(--y)}.d{color:var(--dim)}
+.funnel{display:flex;gap:10px;flex-wrap:wrap}.f{background:#0d1117;border:1px solid var(--line);border-radius:6px;padding:6px 12px;min-width:92px}.f b{display:block;font-size:20px}
+tr.new td{animation:fl 2s}@keyframes fl{from{background:#1f6feb44}to{background:transparent}}
+</style></head><body>
+<header><h1>Judge Desk</h1><span><span class="k">bank</span> <span class="v" id="bank">-</span></span><span><span class="k">watch</span> <span class="v" id="watch">-</span></span>
+<span><span class="k">Jev today</span> <span class="v" id="jev">-</span></span><span class="d" id="now"></span><span class="d">read-only · refresh 4s</span></header>
+<main>
+<section class="wide"><h2>Pipeline funnel · today</h2><div class="funnel" id="funnel"></div></section>
+<section class="wide"><h2>Live lead feed</h2><table id="feed"></table></section>
+<section><h2>Jev judge / gate</h2><table id="judge"></table></section>
+<section><h2>Whale checks</h2><table id="whales"></table></section>
+<section><h2>Open positions</h2><table id="pos"></table></section>
+<section><h2>Recent trades</h2><table id="trades"></table></section>
+<section><h2>Background loops</h2><table id="loops"></table><pre class="d" id="ew" style="white-space:pre-wrap"></pre></section>
+<section><h2>Live executions</h2><table id="live"></table></section>
+</main>
+<script>
+const seen=new Set();let first=true;
+const e=s=>String(s??'-').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const n=(v,d=0)=>v==null?'-':Number(v).toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:d});
+const p=(v,d=1)=>v==null?'-':`<span class="${v>=0?'g':'r'}">${v>=0?'+':''}${n(v,d)}</span>`;
+const c=v=>{const m={clean:'g',confirm:'g',buy:'g',dead:'r',pass:'r',watch:'y',quiet:'y'};return `<span class="${m[v]||''}">${e(v)}</span>`};
+const t=ts=>e(String(ts||'').slice(11,19));
+function tbl(id,h,rows,cls){document.getElementById(id).innerHTML='<tr>'+h.map(x=>`<th>${x}</th>`).join('')+'</tr>'+(rows.length?rows.map((r,i)=>`<tr class="${cls?cls[i]:''}">${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join(''):`<tr><td class="d" colspan="${h.length}">none</td></tr>`)}
+async function tick(){try{const s=await (await fetch('/api/snapshot',{cache:'no-store'})).json();
+document.getElementById('bank').textContent='$'+n(s.bank,2);document.getElementById('watch').textContent=s.watch_n;
+document.getElementById('jev').innerHTML=`$${n(s.jev_spend.usd,4)} / $${n(s.jev_spend.cap_usd,2)} <span class="d">(${s.jev_spend.calls||0} calls)</span>`;
+document.getElementById('now').textContent=s.now;
+document.getElementById('funnel').innerHTML=Object.entries(s.funnel).map(([k,v])=>`<div class="f"><span class="d">${e(k)}</span><b>${n(v)}</b></div>`).join('');
+const cls=s.feed.map(x=>(!first&&!seen.has(x.lead_id))?'new':'');s.feed.forEach(x=>seen.add(x.lead_id));first=false;
+tbl('feed',['time','sym','mint','age','mcap','liq','vol h1','Q','source','RISK','kill reason','WHALE','GATE','killed_by'],s.feed.map(x=>[t(x.ts),e(x.symbol),`<span class="d">${e(x.mint)}</span>`,x.age_h==null?'-':n(x.age_h,1)+'h',n(x.mcap),n(x.liq),n(x.vol_h1),x.qualified?'<span class="g">Q</span>':'<span class="d">·</span>',e((x.sources||[]).join(', ')),c(x.risk),e((x.risk_fails||[]).join(', ')||''),c(x.whale),c(x.gate),e(x.killed_by||'')]),cls);
+tbl('judge',['time','sym','action','organic','late','exit','GATE','killed_by'],s.judge.map(x=>[t(x.ts),e(x.symbol),c(x.action)+' '+n(x.action_p,2),e(x.organic)+' '+n(x.organic_p,2),e(x.late),e(x.exit_risk),c(x.gate),e(x.killed_by||'')]));
+tbl('whales',['time','sym','result','hits','checked','rpc'],s.whales.map(x=>[t(x.ts),e(x.symbol),c(x.result),e(x.hits),e(x.checked),e(x.rpc)]));
+tbl('pos',['sym','mint','entry','now','PnL %','PnL $','peak','stage','held'],s.positions.map(x=>[e(x.symbol),e(x.mint),e(x.entry),e(x.price),p(x.pnl_pct),p(x.pnl_usd,2),p(x.peak_pct),e(x.stage),e(x.held_min)+'m']));
+tbl('trades',['time','event','sym','why','price','usd'],s.trades.map(x=>[t(x.ts),e(x.event),e(x.symbol||x.lead_id),e(x.why),e(x.price),n(x.usd,2)]));
+tbl('loops',['loop','pid','last write'],Object.entries(s.loops).map(([k,v])=>[e(k),v.pid?`<span class="g">up ${v.pid}</span>`:(k.endsWith('.json')?'<span class="d">file</span>':'<span class="r">DOWN</span>'),v.log_age_s==null?'-':(v.log_age_s>600?`<span class="r">${v.log_age_s}s</span>`:v.log_age_s+'s')]));
+document.getElementById('ew').textContent=(s.exit_watch_tail||[]).join('\n');
+tbl('live',['time','tag','event','sig','err'],s.live.map(x=>[t(x.ts),e(x.tag),e(x.event),e(x.sig),e(x.err||'')]));
+}catch(err){document.getElementById('now').textContent='fetch failed: '+err}}
+tick();setInterval(tick,4000);
+</script></body></html>
